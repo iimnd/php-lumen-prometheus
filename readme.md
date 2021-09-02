@@ -36,4 +36,7 @@ http://localhost:8181/metrics
 
 reference : 
 https://github.com/PromPHP/prometheus_client_php 
+
 https://prometheus.io/docs/concepts/metric_types/
+
+https://www.robustperception.io/how-does-a-prometheus-histogram-work
