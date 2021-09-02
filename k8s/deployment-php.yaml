@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: php
+        tier: backend
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: lumen-app-env
+            
+      containers:
+      - name: php
+        image: iimnd/lumen-app:0.1.7
+        volumeMounts:
+        - name: config
+          mountPath: /var/www/.env
+          subPath: .env
+       
