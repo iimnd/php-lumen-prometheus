@@ -35,8 +35,8 @@ class PrometheusController extends Controller
        
      //contoh gauge, ambil data syslog buat dimasukin ke prometheus
       $syslog= sys_getloadavg();
-      $gauge = $this->registry->registerGauge('myapp', 'syslog_gauge', 'it sets', ['type']);
-      $gauge->set($syslog[0], ['last_one_minute_syslog']);
+      $gauge = $this->registry->registerGauge('myapp', 'syslog_gauge', 'it sets', ['code','method','path','version']);
+      $gauge->set($syslog[0], ['200','GET','last_one_minute','v.1.0.0']);
 
     }
 
@@ -44,11 +44,11 @@ class PrometheusController extends Controller
 
     public function getProme(Request $request)
     {
-  $renderer = new RenderTextFormat();
-  $result = $renderer->render($this->registry->getMetricFamilySamples());
-  
-  header('Content-type: ' . RenderTextFormat::MIME_TYPE);
-  echo $result;
+    $renderer = new RenderTextFormat();
+    $result = $renderer->render($this->registry->getMetricFamilySamples());
+    
+    header('Content-type: ' . RenderTextFormat::MIME_TYPE);
+    echo $result;
     }
     
   
@@ -67,13 +67,13 @@ class PrometheusController extends Controller
       echo $seconds;
 
       //sample membuat histogram prometheus
-      $histogram = $this->registry->registerHistogram('myapp', 'process_time', 'it observes', ['type'], [ 1, 2, 5]);
-      $histogram->observe($seconds, ['get_trx']);
+      $histogram = $this->registry->registerHistogram('myapp', 'process_time2', 'it observes', ['code','method','path','version'], [ 1, 2, 5]);
+      $histogram->observe($seconds, ['200','GET','get_trx','v.1.0.0']);
 
 
       //sample membuat counter prometheus
-      $counter = $this->registry->registerCounter('myapp', 'method_counter', 'it increases', ['type']);
-      $counter->incBy(1, ['get_trx']);
+      $counter = $this->registry->registerCounter('myapp', 'method_counter2', 'it increases', ['code','method','path','version']);
+      $counter->incBy(1, ['200','GET','get_trx','v.1.0.0']);
 
 
       //sample membuat summary prometheus, sementara belom support
@@ -104,14 +104,13 @@ class PrometheusController extends Controller
       echo $seconds;
 
       //sample membuat histogram prometheus
-      $histogram = $this->registry->registerHistogram('myapp', 'process_time', 'it observes', ['type'], [ 1, 2, 5]);
-      $histogram->observe($seconds, ['get_report']);
-
+      $histogram = $this->registry->registerHistogram('myapp', 'process_time2', 'it observes', ['code','method','path','version'], [ 1, 2, 5]);
+      $histogram->observe($seconds, ['200','GET','get_report','v.1.0.0']);
 
 
       //sample membuat counter prometheus
-      $counter = $this->registry->registerCounter('myapp', 'method_counter', 'it increases', ['type']);
-      $counter->incBy(1, ['get_report']);
+      $counter = $this->registry->registerCounter('myapp', 'method_counter2', 'it increases', ['code','method','path','version']);
+      $counter->incBy(1, ['200','GET','get_report','v.1.0.0']);
 
       //sample membuat summary prometheus, sementara blum support
       //$summary = $this->registry->registerSummary('myapp', 'process_time', 'it observes', ['type'], 600, [0.01, 0.05, 0.5, 0.95, 0.99]);

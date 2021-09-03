@@ -1,0 +1,21 @@
+# HELP myapp_method_counter2 it increases
+# TYPE myapp_method_counter2 counter
+myapp_method_counter2{code="200",method="GET",path="get_report",version="v.1.0.0"} 1
+myapp_method_counter2{code="200",method="GET",path="get_trx",version="v.1.0.0"} 1
+# HELP myapp_process_time2 it observes
+# TYPE myapp_process_time2 histogram
+myapp_process_time2_bucket{code="200",method="GET",path="get_report",version="v.1.0.0",le="1"} 0
+myapp_process_time2_bucket{code="200",method="GET",path="get_report",version="v.1.0.0",le="2"} 0
+myapp_process_time2_bucket{code="200",method="GET",path="get_report",version="v.1.0.0",le="5"} 0
+myapp_process_time2_bucket{code="200",method="GET",path="get_report",version="v.1.0.0",le="+Inf"} 1
+myapp_process_time2_count{code="200",method="GET",path="get_report",version="v.1.0.0"} 1
+myapp_process_time2_sum{code="200",method="GET",path="get_report",version="v.1.0.0"} 5.8346290588379
+myapp_process_time2_bucket{code="200",method="GET",path="get_trx",version="v.1.0.0",le="1"} 0
+myapp_process_time2_bucket{code="200",method="GET",path="get_trx",version="v.1.0.0",le="2"} 0
+myapp_process_time2_bucket{code="200",method="GET",path="get_trx",version="v.1.0.0",le="5"} 1
+myapp_process_time2_bucket{code="200",method="GET",path="get_trx",version="v.1.0.0",le="+Inf"} 1
+myapp_process_time2_count{code="200",method="GET",path="get_trx",version="v.1.0.0"} 1
+myapp_process_time2_sum{code="200",method="GET",path="get_trx",version="v.1.0.0"} 2.0005149841309
+# HELP myapp_syslog_gauge it sets
+# TYPE myapp_syslog_gauge gauge
+myapp_syslog_gauge{code="200",method="GET",path="last_one_minute",version="v.1.0.0"} 5.29
