@@ -9,10 +9,16 @@ use Prometheus\RenderTextFormat;
 use Prometheus\Storage\Redis;
 use Prometheus\Storage\InMemory;
 
+// include prometheus class
+use App\Prometheus;
+
 class PrometheusController extends Controller
 {
 
+    public $counter;
+    public $histogram;
     public $registry;
+    public $gauge; 
     /**
      * Create a new controller instance.
      *
@@ -20,35 +26,28 @@ class PrometheusController extends Controller
      */
     public function __construct()
     {
-      \Prometheus\Storage\Redis::setDefaultOptions(
-        [
-            'host' => 'redis',
-            'port' => 6379,
-            'password' => null,
-            'timeout' => 0.1, // in seconds
-            'read_timeout' => '10', // in seconds
-            'persistent_connections' => false
-        ]
-    );
 
-      $this->registry = \Prometheus\CollectorRegistry::getDefault();
-       
-     //contoh gauge, ambil data syslog buat dimasukin ke prometheus
+      // register metrics
+      $prefix="canopus";
+      $this->counter= (new Prometheus)->constructorCounter($prefix,"_counter","ini deskripsi");
+      $this->gauge= (new Prometheus)->constructorGauge($prefix,"_gauge_version","ini deskripsi");
+      $this->histogram= (new Prometheus)->constructorHistogram($prefix,"_histogram","ini deskripsi");
+      $this->registry= (new Prometheus)->getRegistry();
+
       $syslog= sys_getloadavg();
-      $gauge = $this->registry->registerGauge('myapp', 'syslog_gauge', 'it sets', ['code','method','path','version']);
-      $gauge->set($syslog[0], ['200','GET','last_one_minute','v.1.0.0']);
-
+      $this->gauge->set($syslog[0], ['200','GET','last_one_minute','v.1.0.0']);
+  
     }
 
 
 
     public function getProme(Request $request)
     {
-    $renderer = new RenderTextFormat();
-    $result = $renderer->render($this->registry->getMetricFamilySamples());
+     $renderer = new RenderTextFormat();
+     $result = $renderer->render($this->registry->getMetricFamilySamples());
     
-    header('Content-type: ' . RenderTextFormat::MIME_TYPE);
-    echo $result;
+     header('Content-type: ' . RenderTextFormat::MIME_TYPE);
+     echo $result;
     }
     
   
@@ -66,20 +65,10 @@ class PrometheusController extends Controller
       $seconds = $executionEndTime - $executionStartTime;
       echo $seconds;
 
-      //sample membuat histogram prometheus
-      $histogram = $this->registry->registerHistogram('myapp', 'process_time2', 'it observes', ['code','method','path','version'], [ 1, 2, 5]);
-      $histogram->observe($seconds, ['200','GET','get_trx','v.1.0.0']);
+      // add histogram and counter metrics
+      $this->histogram->observe($seconds, ['200','GET','get_trx','v.1.0.0']);
+      $this->counter->incBy(1, ['200','GET','get_trx','v.1.0.0']);
 
-
-      //sample membuat counter prometheus
-      $counter = $this->registry->registerCounter('myapp', 'method_counter2', 'it increases', ['code','method','path','version']);
-      $counter->incBy(1, ['200','GET','get_trx','v.1.0.0']);
-
-
-      //sample membuat summary prometheus, sementara belom support
-      //$summary = $this->registry->registerSummary('myapp', 'process_time', 'it observes', ['type'], 600, [0.01, 0.05, 0.5, 0.95, 0.99]);
-     // $summary->observe($seconds, ['get_trx']);
-      //echo "ok";
     }
   
     public function get_report(Request $request)
@@ -103,31 +92,20 @@ class PrometheusController extends Controller
       $seconds = $executionEndTime - $executionStartTime;
       echo $seconds;
 
-      //sample membuat histogram prometheus
-      $histogram = $this->registry->registerHistogram('myapp', 'process_time2', 'it observes', ['code','method','path','version'], [ 1, 2, 5]);
-      $histogram->observe($seconds, ['200','GET','get_report','v.1.0.0']);
-
-
-      //sample membuat counter prometheus
-      $counter = $this->registry->registerCounter('myapp', 'method_counter2', 'it increases', ['code','method','path','version']);
-      $counter->incBy(1, ['200','GET','get_report','v.1.0.0']);
-
-      //sample membuat summary prometheus, sementara blum support
-      //$summary = $this->registry->registerSummary('myapp', 'process_time', 'it observes', ['type'], 600, [0.01, 0.05, 0.5, 0.95, 0.99]);
-      //$summary->observe($seconds, ['get_report']);
-      //echo "ok";
+    
+       // add histogram and counter metrics
+      $this->histogram->observe($seconds, ['200','GET','get_report','v.1.0.0']);
+      $this->counter->incBy(1, ['200','GET','get_report','v.1.0.0']);
+      
     }
   
   
     public function getFlush(Request $request){
-       $syslog= sys_getloadavg();
-       echo $syslog[0];
-     echo "flush";
+      echo "not supported";
       
   
     }
 
-// ref: https://prometheus.io/docs/practices/histograms/
-
+    // ref: https://prometheus.io/docs/practices/histograms/
     //
 }
